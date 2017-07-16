@@ -43,7 +43,7 @@ func (p *pluginImp) WriteOptionsTypes() []*glopher.OptionType {
 	return writeOptionsTypes
 }
 
-func (p *pluginImp) Read(filename string, options ...glopher.Option) (chan *glopher.Entry, error) {
+func (p *pluginImp) Read(filename string, options ...glopher.Option) (<-chan *glopher.Entry, error) {
 	bufferSize := 10 // TODO: get from options
 	file, err := os.Open(filename)
 	if err != nil {
@@ -86,7 +86,7 @@ func (p *pluginImp) Read(filename string, options ...glopher.Option) (chan *glop
 	return out, nil
 }
 
-func (p *pluginImp) Write(filename string, reader chan *glopher.Entry, options ...glopher.Option) error {
+func (p *pluginImp) Write(filename string, reader <-chan *glopher.Entry, info *glopher.StrOrderedMap, nonInfo []*glopher.Entry, options ...glopher.Option) error {
 	file, err := os.Create(filename)
 	if file != nil {
 		defer file.Close()

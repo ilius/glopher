@@ -1,5 +1,6 @@
 *.bin
 pkg
+coverage.*
 __pycache__
 *.pyc
 *.pyo

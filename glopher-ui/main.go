@@ -18,7 +18,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		err = plug.Write(os.Args[2], reader)
+		err = plug.Write(os.Args[2], reader, nil, nil)
 		if err != nil {
 			panic(err)
 		}
