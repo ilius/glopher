@@ -10,8 +10,8 @@ type GPlugin interface {
 	Extentions() []string
 	ReadOptionTypes() []*OptionType
 	WriteOptionsTypes() []*OptionType
-	Read(filename string, options ...Option) (chan *Entry, error)
-	Write(filename string, reader chan *Entry, options ...Option) error
+	Read(filename string, options ...Option) (<-chan *Entry, error)
+	Write(filename string, reader <-chan *Entry, info *StrOrderedMap, nonInfo []*Entry, options ...Option) error
 }
 
 var pluginMap = map[string]GPlugin{}
