@@ -1,0 +1,5 @@
+*.bin
+pkg
+__pycache__
+*.pyc
+*.pyo
