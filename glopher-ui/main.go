@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/ilius/glopher/glopher"
-	_ "github.com/ilius/glopher/glopher/plugins/tabfile"
 	"os"
 )
 
