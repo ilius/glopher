@@ -1,58 +1,52 @@
-package tabfile
+package glopher
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/ilius/glopher/glopher"
 	"os"
 	"strings"
 )
 
 func init() {
-	glopher.RegisterPlugin(&pluginImp{})
+	RegisterPlugin(&tabfilePlug{})
 }
 
-var extentions = []string{
-	".txt",
-	".tab",
-	".dic",
-}
+type tabfilePlug struct{}
 
-var readOptionTypes = []*glopher.OptionType{}
-var writeOptionsTypes = []*glopher.OptionType{}
-
-type pluginImp struct{}
-
-func (p *pluginImp) Name() string {
+func (p *tabfilePlug) Name() string {
 	return "tabfile"
 }
 
-func (p *pluginImp) Description() string {
+func (p *tabfilePlug) Description() string {
 	return "Tabfile (.txt)"
 }
 
-func (p *pluginImp) Extentions() []string {
-	return extentions
+func (p *tabfilePlug) Extentions() []string {
+	return []string{
+		".txt",
+		".tab",
+		".dic",
+	}
 }
 
-func (p *pluginImp) ReadOptionTypes() []*glopher.OptionType {
-	return readOptionTypes
+func (p *tabfilePlug) ReadOptionTypes() []*OptionType {
+	return []*OptionType{}
 }
 
-func (p *pluginImp) WriteOptionsTypes() []*glopher.OptionType {
-	return writeOptionsTypes
+func (p *tabfilePlug) WriteOptionsTypes() []*OptionType {
+	return []*OptionType{}
 }
 
-func (p *pluginImp) Read(filename string, options ...glopher.Option) (<-chan *glopher.Entry, error) {
+func (p *tabfilePlug) Read(filename string, options ...Option) (<-chan *Entry, error) {
 	bufferSize := 10 // TODO: get from options
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	scanner := bufio.NewScanner(file)
-	out := make(chan *glopher.Entry, bufferSize)
+	out := make(chan *Entry, bufferSize)
 	sendError := func(err error) {
-		out <- &glopher.Entry{
+		out <- &Entry{
 			Error: err,
 		}
 	}
@@ -73,7 +67,7 @@ func (p *pluginImp) Read(filename string, options ...glopher.Option) (<-chan *gl
 			} else {
 				defi = strings.Join(parts[1:], "\t")
 			}
-			out <- &glopher.Entry{
+			out <- &Entry{
 				Word: word,
 				Defi: defi,
 			}
@@ -86,7 +80,7 @@ func (p *pluginImp) Read(filename string, options ...glopher.Option) (<-chan *gl
 	return out, nil
 }
 
-func (p *pluginImp) Write(filename string, reader <-chan *glopher.Entry, info *glopher.StrOrderedMap, nonInfo []*glopher.Entry, options ...glopher.Option) error {
+func (p *tabfilePlug) Write(filename string, reader <-chan *Entry, info *StrOrderedMap, nonInfo []*Entry, options ...Option) error {
 	file, err := os.Create(filename)
 	if file != nil {
 		defer file.Close()
