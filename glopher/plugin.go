@@ -1,26 +1,45 @@
 package glopher
 
 import (
+	"fmt"
+	"strings"
 	"sync"
 )
 
-type GPlugin interface {
+type PluginBase interface {
 	Name() string
 	Description() string
 	Extentions() []string
 	ReadOptionTypes() []*OptionType
 	WriteOptionsTypes() []*OptionType
-	Read(filename string, options ...Option) (<-chan *Entry, error)
-	Write(filename string, reader <-chan *Entry, info *StrOrderedMap, nonInfo []*Entry, options ...Option) error
+	Write(glos LimitedGlossary, filename string, options ...Option) error
 }
 
-var pluginMap = map[string]GPlugin{}
+type PluginType1 interface {
+	PluginBase
+	Read(filename string, options ...Option) (func() *Entry, error)
+}
+
+type PluginType2 interface {
+	PluginBase
+	Read2(filename string, options ...Option) (<-chan *Entry, error)
+}
+
+var pluginMap = map[string]PluginType1{}
 var pluginMapMutex sync.RWMutex
 
-func RegisterPlugin(p GPlugin) {
+func RegisterPluginType1(p PluginType1) {
+	name := p.Name()
+	if strings.ToLower(name) != name {
+		panic(fmt.Sprintf("RegisterPluginType1(%#v): plugin name must be lowercase", name))
+	}
 	pluginMapMutex.Lock()
 	defer pluginMapMutex.Unlock()
-	pluginMap[p.Name()] = p
+	pluginMap[name] = p
+}
+
+func RegisterPluginType2(p PluginType1) {
+	panic("Not Implemented")
 }
 
 func PluginNames() []string {
@@ -33,7 +52,7 @@ func PluginNames() []string {
 	return names
 }
 
-func PluginByName(name string) GPlugin {
+func PluginByName(name string) PluginType1 {
 	pluginMapMutex.RLock()
 	defer pluginMapMutex.RUnlock()
 	p, ok := pluginMap[name]

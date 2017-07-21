@@ -9,15 +9,14 @@ import (
 func main() {
 	fmt.Println("Supported formats:", glopher.PluginNames())
 	if len(os.Args) == 3 {
-		plug := glopher.PluginByName("tabfile")
-		if plug == nil {
-			panic("tabfile plugin was not found")
-		}
-		reader, err := plug.Read(os.Args[1])
+		inputPath := os.Args[1]
+		outputPath := os.Args[2]
+		glos := glopher.NewGlossary()
+		err := glos.Read(inputPath, "")
 		if err != nil {
 			panic(err)
 		}
-		err = plug.Write(os.Args[2], reader, nil, nil)
+		err = glos.Write(outputPath, "")
 		if err != nil {
 			panic(err)
 		}
