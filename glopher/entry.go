@@ -1,8 +1,11 @@
 package glopher
 
 type Entry struct {
-	Word   string
-	Defi   string
-	IsInfo bool
-	Error  error
+	Word       string
+	AltWord    []string
+	Defi       string
+	AltDefi    []string
+	DefiFormat DefiFormat
+	IsInfo     bool
+	Error      error
 }
