@@ -12,6 +12,7 @@ type PluginBase interface {
 	Extentions() []string
 	ReadOptionTypes() []*OptionType
 	WriteOptionsTypes() []*OptionType
+	Count(filename string) (int, error)
 	Write(glos LimitedGlossary, filename string, options ...Option) error
 }
 

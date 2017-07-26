@@ -12,6 +12,7 @@ func main() {
 		inputPath := os.Args[1]
 		outputPath := os.Args[2]
 		glos := glopher.NewGlossary()
+		glos.SetProgressBar(NewCmdProgressBar())
 		err := glos.Read(inputPath, "")
 		if err != nil {
 			panic(err)

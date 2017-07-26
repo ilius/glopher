@@ -38,6 +38,14 @@ func (p *tabfilePlug) WriteOptionsTypes() []*OptionType {
 	return []*OptionType{}
 }
 
+func (p *tabfilePlug) Count(filename string) (int, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return 0, err
+	}
+	return CountBlocks(file, Newline)
+}
+
 func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, error) {
 	file, err := os.Open(filename)
 	if err != nil {
