@@ -19,8 +19,16 @@ type Glossary interface {
 	Filename() string
 	SetFilename(string)
 	// DefaultDefiFormat() DefiFormat
+	SetProgressBar(ProgressBar)
+	Len() int
 	Read(filename string, format string) error
 	Write(filename string, format string) error
+}
+
+type EntryReader struct {
+	Plug     PluginType1
+	Filename string
+	Next     func() *Entry
 }
 
 func NewGlossary() Glossary {
@@ -34,7 +42,7 @@ func NewGlossary() Glossary {
 	return &glossaryImp{
 		filename:    "",
 		info:        NewStrOrderedMap(),
-		readers:     []func() *Entry{},
+		readers:     []EntryReader{},
 		pluginByExt: pluginByExt,
 	}
 }
@@ -43,7 +51,10 @@ type glossaryImp struct {
 	filename     string
 	info         *StrOrderedMap
 	firstEntries EntryHeap // minimal, ideally empty
-	readers      []func() *Entry
+	readers      []EntryReader
+	pbar         ProgressBar
+	iterating    bool
+	entryCount   int
 
 	defaultDefiFormat DefiFormat
 	// entryFilters = []*EntryFilter
@@ -64,6 +75,10 @@ func (g *glossaryImp) SetFilename(filename string) {
 
 func (g *glossaryImp) Info() *StrOrderedMap {
 	return g.info
+}
+
+func (g *glossaryImp) SetProgressBar(pbar ProgressBar) {
+	g.pbar = pbar
 }
 
 func (g *glossaryImp) DefaultDefiFormat() DefiFormat {
@@ -102,12 +117,22 @@ func (g *glossaryImp) Read(filename string, format string) error {
 		return fmt.Errorf("Could not read file %#v, unknown format/extention", filename)
 	}
 	log.Printf("Reading from %v: %#v\n", plug.Description(), filename)
-	reader, err := plug.Read(filename) // TODO: options
+	count, err := plug.Count(filename)
 	if err != nil {
 		return err
 	}
-	if reader == nil {
+	g.entryCount += count
+	nextFunc, err := plug.Read(filename) // TODO: options
+	if err != nil {
+		return err
+	}
+	if nextFunc == nil {
 		panic("plug.Read returned nil func with no error")
+	}
+	reader := EntryReader{
+		Plug:     plug,
+		Filename: filename,
+		Next:     nextFunc,
 	}
 	g.readers = append(g.readers, reader)
 	maxNonInfo := 10 // TODO: get from options
@@ -145,7 +170,15 @@ func (g *glossaryImp) Write(filename string, format string) error {
 	return nil
 }
 
+func (g *glossaryImp) Len() int {
+	return g.entryCount
+}
+
 func (g *glossaryImp) Iter() <-chan *Entry {
+	if g.iterating {
+		panic("Glossary.Iter: already iterating somewhere")
+	}
+	g.iterating = true
 	out := make(chan *Entry, g.iterBufferSize)
 	// sendError := func(err error) {
 	// 	out <- &Entry{
@@ -153,14 +186,34 @@ func (g *glossaryImp) Iter() <-chan *Entry {
 	// 	}
 	// }
 	go func() {
-		defer close(out)
+		defer func() {
+			close(out)
+			g.iterating = false
+			g.entryCount = 0
+		}()
 		for len(g.firstEntries) > 0 {
 			out <- heap.Pop(&g.firstEntries).(*Entry)
 		}
+		if g.pbar != nil {
+			total := 0
+			for _, reader := range g.readers {
+				c, err := reader.Plug.Count(reader.Filename)
+				if err != nil {
+					log.Println(err)
+				}
+				total += c
+			}
+			g.pbar.SetTotal(total)
+			g.pbar.Start("Converting")
+		}
+		index := 0
 		for _, reader := range g.readers {
 			for {
-				entry := reader()
-				// TODO: update progressbar
+				entry := reader.Next()
+				if g.pbar != nil {
+					g.pbar.Update(index)
+				}
+				index++
 				if entry == nil {
 					continue
 				}

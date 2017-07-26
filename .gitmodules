@@ -1,3 +1,9 @@
 [submodule "src/github.com/stretchr/testify"]
 	path = src/github.com/stretchr/testify
 	url = git@github.com:stretchr/testify
+[submodule "src/github.com/cheggaaa/pb"]
+	path = src/github.com/cheggaaa/pb
+	url = git@github.com:cheggaaa/pb
+[submodule "src/github.com/mattn/go-runewidth"]
+	path = src/github.com/mattn/go-runewidth
+	url = git@github.com:mattn/go-runewidth

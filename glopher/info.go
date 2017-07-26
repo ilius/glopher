@@ -5,14 +5,14 @@ import (
 	"io"
 )
 
-func ReadInfo(reader func() *Entry, maxNonInfo int) (*StrOrderedMap, []*Entry, error) {
+func ReadInfo(reader EntryReader, maxNonInfo int) (*StrOrderedMap, []*Entry, error) {
 	if maxNonInfo < 1 {
 		return nil, nil, fmt.Errorf("bad maxNonInfo = %v, must be at least 1", maxNonInfo)
 	}
 	info := NewStrOrderedMap()
 	nonInfo := make([]*Entry, 0, maxNonInfo)
 	for {
-		entry := reader()
+		entry := reader.Next()
 		if entry.Error == io.EOF {
 			break
 		}
