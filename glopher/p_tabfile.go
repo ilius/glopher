@@ -65,6 +65,9 @@ func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, e
 			}
 		}
 		line = strings.TrimSpace(line)
+		if line == "" {
+			return nil
+		}
 		parts := strings.Split(line, "\t")
 		if len(parts) < 1 {
 			return &Entry{
@@ -79,9 +82,19 @@ func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, e
 		} else {
 			defi = strings.Join(parts[1:], "\t")
 		}
+		isInfo := false
+		if word[0] == '#' {
+			isInfo = true
+			word = strings.TrimLeft(word, "#")
+		}
+		word = strings.TrimSpace(word)
+		// TODO: if enable_alts { words := SplitByBarUnescapeNTB(word) } else { ... }
+		word = UnescapeNTB(word)
+		defi = UnescapeNTB(defi)
 		return &Entry{
-			Word: word,
-			Defi: defi,
+			Word:   word,
+			Defi:   defi,
+			IsInfo: isInfo,
 		}
 	}, nil
 }
