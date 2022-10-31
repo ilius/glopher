@@ -27,8 +27,8 @@ type Glossary interface {
 
 type EntryReader struct {
 	Plug     PluginType1
-	Filename string
 	Next     func() *Entry
+	Filename string
 }
 
 func NewGlossary() Glossary {
@@ -48,21 +48,16 @@ func NewGlossary() Glossary {
 }
 
 type glossaryImp struct {
-	filename     string
-	info         *StrOrderedMap
-	firstEntries EntryHeap // minimal, ideally empty
-	readers      []EntryReader
-	pbar         ProgressBar
-	iterating    bool
-	entryCount   int
-
+	pbar              ProgressBar
+	info              *StrOrderedMap
+	pluginByExt       map[string]PluginType1
+	filename          string
+	firstEntries      EntryHeap
+	readers           []EntryReader
+	entryCount        int
+	iterBufferSize    int
+	iterating         bool
 	defaultDefiFormat DefiFormat
-	// entryFilters = []*EntryFilter
-	// sortKey *func....
-	// sortCacheSize int
-	iterBufferSize int
-
-	pluginByExt map[string]PluginType1
 }
 
 func (g *glossaryImp) Filename() string {

@@ -12,8 +12,8 @@ func NewStrOrderedMap() *StrOrderedMap {
 
 type StrOrderedMap struct {
 	data      map[string]*string
-	dataMutex sync.RWMutex
 	keys      []string
+	dataMutex sync.RWMutex
 	keysMutex sync.RWMutex
 }
 
