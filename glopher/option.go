@@ -5,11 +5,11 @@ import (
 )
 
 type Option struct {
-	Name  string
 	Value interface{}
+	Name  string
 }
 
 type OptionType struct {
-	Name      string
 	ValueType reflect.Type
+	Name      string
 }
