@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/ilius/glopher/glopher"
 	"os"
+
+	"github.com/ilius/glopher/glopher"
 )
 
 func main() {

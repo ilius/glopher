@@ -1,4 +1,5 @@
 *.bin
+*.exe
 pkg
 coverage.*
 __pycache__
