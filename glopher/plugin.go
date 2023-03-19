@@ -26,8 +26,10 @@ type PluginType2 interface {
 	Read2(filename string, options ...Option) (<-chan *Entry, error)
 }
 
-var pluginMap = map[string]PluginType1{}
-var pluginMapMutex sync.RWMutex
+var (
+	pluginMap      = map[string]PluginType1{}
+	pluginMapMutex sync.RWMutex
+)
 
 func RegisterPluginType1(p PluginType1) {
 	name := p.Name()
@@ -47,7 +49,7 @@ func PluginNames() []string {
 	pluginMapMutex.RLock()
 	defer pluginMapMutex.RUnlock()
 	names := make([]string, 0, len(pluginMap))
-	for name, _ := range pluginMap {
+	for name := range pluginMap {
 		names = append(names, name)
 	}
 	return names

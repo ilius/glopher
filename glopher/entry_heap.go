@@ -1,7 +1,5 @@
 package glopher
 
-import ()
-
 type EntryHeap []*Entry
 
 func (h EntryHeap) Len() int           { return len(h) }

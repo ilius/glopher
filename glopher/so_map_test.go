@@ -1,9 +1,8 @@
 package glopher
 
 import (
-	"testing"
-
 	"strings"
+	"testing"
 
 	"github.com/ilius/is/v2"
 )
@@ -73,5 +72,4 @@ func Test_StrOrderedMap(t *testing.T) {
 	value, ok = m.Pop("abcd")
 	is.Equal("", value)
 	is.Equal(false, ok)
-
 }
