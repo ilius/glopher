@@ -72,9 +72,7 @@ func (p *dictfilePlug) Read(filename string, options ...Option) (func() *Entry, 
 				bufferLine = ""
 			} else {
 				if !scanner.Scan() {
-					return &Entry{
-						Error: io.EOF,
-					}
+					break
 				}
 				line = scanner.Text()
 				if err := scanner.Err(); err != nil {
@@ -106,7 +104,7 @@ func (p *dictfilePlug) Read(filename string, options ...Option) (func() *Entry, 
 				continue Loop
 			case ':':
 				if len(line) < 2 {
-					// Error: bad line
+					// Warning: bad line
 					continue Loop
 				}
 				switch line[1] {
@@ -124,8 +122,10 @@ func (p *dictfilePlug) Read(filename string, options ...Option) (func() *Entry, 
 
 			defiLines = append(defiLines, line)
 		}
-		if words == nil {
-			return nil
+		if len(words) == 0 {
+			return &Entry{
+				Error: io.EOF,
+			}
 		}
 		return &Entry{
 			Word:    words[0],
