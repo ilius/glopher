@@ -79,9 +79,12 @@ func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, e
 		} else {
 			defi = strings.Join(parts[1:], "\t")
 		}
+		words := SplitByBarUnescapeNTB(word)
+		defi = UnescapeNTB(defi, false)
 		return &Entry{
-			Word: word,
-			Defi: defi,
+			Word:    words[0],
+			Defi:    defi,
+			AltWord: words[1:],
 		}
 	}, nil
 }
