@@ -16,30 +16,13 @@ type StarDictReader struct {
 	idxPath  string
 	dictPath string
 	synPath  string
-	resDir   string
-	resURL   string
+	// resDir   string
 
-	decodeData func(data []byte) []*SearchResultItem
-}
-
-func (d *StarDictReader) Disabled() bool {
-	return d.disabled
+	decodeData func(data []byte) []*ArticleItem
 }
 
 func (d *StarDictReader) Loaded() bool {
 	return d.dict != nil
-}
-
-func (d *StarDictReader) SetDisabled(disabled bool) {
-	d.disabled = disabled
-}
-
-func (d *StarDictReader) ResourceDir() string {
-	return d.resDir
-}
-
-func (d *StarDictReader) ResourceURL() string {
-	return d.resURL
 }
 
 func (d *StarDictReader) IndexPath() string {
@@ -54,7 +37,7 @@ func (d *StarDictReader) Close() {
 	d.dict.Close()
 }
 
-func (d *StarDictReader) decodeWithSametypesequence(data []byte) (items []*SearchResultItem) {
+func (d *StarDictReader) decodeWithSametypesequence(data []byte) (items []*ArticleItem) {
 	seq := d.Options["sametypesequence"]
 
 	seqLen := len(seq)
@@ -67,18 +50,18 @@ func (d *StarDictReader) decodeWithSametypesequence(data []byte) (items []*Searc
 		case 'm', 'l', 'g', 't', 'x', 'y', 'k', 'w', 'h', 'r':
 			// if last seq item
 			if i == seqLen-1 {
-				items = append(items, &SearchResultItem{Type: t, Data: data[dataPos:dataSize]})
+				items = append(items, &ArticleItem{Type: t, Data: data[dataPos:dataSize]})
 			} else {
 				end := bytes.IndexRune(data[dataPos:], '\000')
-				items = append(items, &SearchResultItem{Type: t, Data: data[dataPos : dataPos+end+1]})
+				items = append(items, &ArticleItem{Type: t, Data: data[dataPos : dataPos+end+1]})
 				dataPos += end + 1
 			}
 		case 'W', 'P':
 			if i == seqLen-1 {
-				items = append(items, &SearchResultItem{Type: t, Data: data[dataPos:dataSize]})
+				items = append(items, &ArticleItem{Type: t, Data: data[dataPos:dataSize]})
 			} else {
 				size := binary.BigEndian.Uint32(data[dataPos : dataPos+4])
-				items = append(items, &SearchResultItem{Type: t, Data: data[dataPos+4 : dataPos+int(size)+5]})
+				items = append(items, &ArticleItem{Type: t, Data: data[dataPos+4 : dataPos+int(size)+5]})
 				dataPos += int(size) + 5
 			}
 		}
@@ -87,7 +70,7 @@ func (d *StarDictReader) decodeWithSametypesequence(data []byte) (items []*Searc
 	return
 }
 
-func (d *StarDictReader) decodeWithoutSametypesequence(data []byte) (items []*SearchResultItem) {
+func (d *StarDictReader) decodeWithoutSametypesequence(data []byte) (items []*ArticleItem) {
 	var dataPos int
 	dataSize := len(data)
 
@@ -101,15 +84,15 @@ func (d *StarDictReader) decodeWithoutSametypesequence(data []byte) (items []*Se
 			end := bytes.IndexRune(data[dataPos:], '\000')
 
 			if end < 0 { // last item
-				items = append(items, &SearchResultItem{Type: rune(t), Data: data[dataPos:dataSize]})
+				items = append(items, &ArticleItem{Type: rune(t), Data: data[dataPos:dataSize]})
 				dataPos = dataSize
 			} else {
-				items = append(items, &SearchResultItem{Type: rune(t), Data: data[dataPos : dataPos+end+1]})
+				items = append(items, &ArticleItem{Type: rune(t), Data: data[dataPos : dataPos+end+1]})
 				dataPos += end + 1
 			}
 		case 'W', 'P':
 			size := binary.BigEndian.Uint32(data[dataPos : dataPos+4])
-			items = append(items, &SearchResultItem{Type: rune(t), Data: data[dataPos+4 : dataPos+int(size)+5]})
+			items = append(items, &ArticleItem{Type: rune(t), Data: data[dataPos+4 : dataPos+int(size)+5]})
 			dataPos += int(size) + 5
 		}
 
@@ -190,7 +173,7 @@ const (
 	sizeState
 )
 
-func (d *StarDictReader) Read() (func() ([]string, []*SearchResultItem), error) {
+func (d *StarDictReader) Read() (func() ([]string, []*ArticleItem), error) {
 	info := d.Info
 	dict, err := ReadDict(d.dictPath, info)
 	if err != nil {
@@ -211,10 +194,6 @@ func (d *StarDictReader) Read() (func() ([]string, []*SearchResultItem), error) 
 			return nil, err
 		}
 	}
-	// {
-	// 	jsonB, _ := json.MarshalIndent(altsMap, "", "\t")
-	// 	os.WriteFile("syn.json", jsonB, 0644)
-	// }
 
 	var buf [255]byte // temporary buffer
 	var bufPos int
@@ -228,7 +207,7 @@ func (d *StarDictReader) Read() (func() ([]string, []*SearchResultItem), error) 
 	pos := 0
 	entryIndex := 0
 
-	return func() ([]string, []*SearchResultItem) {
+	return func() ([]string, []*ArticleItem) {
 		alts := altsMap[int(entryIndex)]
 		entryIndex++
 		for {
@@ -267,7 +246,6 @@ func (d *StarDictReader) Read() (func() ([]string, []*SearchResultItem), error) 
 			// finished with one record
 			bufPos = 0
 			state = termState
-			// log.Println("entryIndex:", entryIndex, ", alt count:", len(alts))
 			terms := append([]string{term}, alts...)
 			return terms, d.decodeData(dict.GetSequence(dataOffset, num))
 		}

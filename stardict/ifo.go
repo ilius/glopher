@@ -18,10 +18,9 @@ const (
 
 // Info contains dictionary options
 type Info struct {
-	Options  map[string]string
-	Version  string
-	Is64     bool
-	disabled bool
+	Options map[string]string
+	Version string
+	Is64    bool
 }
 
 func (info Info) DictName() string {

@@ -1,6 +1,6 @@
 package stardict
 
-type SearchResultItem struct {
+type ArticleItem struct {
 	Data []byte
 	Type rune
 }
