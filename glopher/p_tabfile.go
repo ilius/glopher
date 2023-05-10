@@ -68,7 +68,7 @@ func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, e
 		parts := strings.Split(line, "\t")
 		if len(parts) < 1 {
 			return &Entry{
-				Error: fmt.Errorf("Tabfile: bad line: %v", line),
+				Error: fmt.Errorf("tabfile: bad line: %v", line),
 			}
 		}
 		word := parts[0]

@@ -117,9 +117,7 @@ func (p *dictfilePlug) Read(filename string, options ...Option) (func() *Entry, 
 				}
 			}
 
-			if strings.HasPrefix(line, "<html>") {
-				line = line[6:]
-			}
+			line = strings.TrimPrefix(line, "<html>")
 
 			defiLines = append(defiLines, line)
 		}
@@ -137,12 +135,12 @@ func (p *dictfilePlug) Read(filename string, options ...Option) (func() *Entry, 
 }
 
 // for writer
-func (p *dictfilePlug) escapeDefi(defi string) string {
-	defi = strings.Replace(defi, "\n@", "\n @", -1)
-	defi = strings.Replace(defi, "\n:", "\n :", -1)
-	defi = strings.Replace(defi, "\n&", "\n &", -1)
-	return defi
-}
+// func (p *dictfilePlug) escapeDefi(defi string) string {
+// 	defi = strings.Replace(defi, "\n@", "\n @", -1)
+// 	defi = strings.Replace(defi, "\n:", "\n :", -1)
+// 	defi = strings.Replace(defi, "\n&", "\n &", -1)
+// 	return defi
+// }
 
 func (p *dictfilePlug) Write(glos LimitedGlossary, filename string, options ...Option) error {
 	// file, err := os.Create(filename)

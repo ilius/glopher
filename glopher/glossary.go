@@ -109,7 +109,7 @@ func (g *glossaryImp) Read(filename string, format string) error {
 	filename = filepath.Clean(filename)
 	plug := g.findPlugin(filename, format)
 	if plug == nil {
-		return fmt.Errorf("Could not read file %#v, unknown format/extention", filename)
+		return fmt.Errorf("could not read file %#v, unknown format/extention", filename)
 	}
 	log.Printf("Reading from %v: %#v\n", plug.Description(), filename)
 	count, err := plug.Count(filename)
@@ -155,7 +155,7 @@ func (g *glossaryImp) Write(filename string, format string) error {
 	filename = filepath.Clean(filename)
 	plug := g.findPlugin(filename, format)
 	if plug == nil {
-		return fmt.Errorf("Could not write to file %#v, unknown format/extention", filename)
+		return fmt.Errorf("could not write to file %#v, unknown format/extention", filename)
 	}
 	log.Printf("Writing to %v: %#v\n", plug.Description(), filename)
 	err = plug.Write(g, filename)
