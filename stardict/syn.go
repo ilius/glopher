@@ -9,7 +9,6 @@ import (
 
 func readSyn(synPath string) (map[int][]string, error) {
 	synBytes, err := os.ReadFile(synPath)
-	// unable to read index
 	if err != nil {
 		return nil, err
 	}

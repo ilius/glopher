@@ -11,6 +11,9 @@ const (
 	I_wordcount   = "wordcount"
 	I_description = "description"
 	I_idxfilesize = "idxfilesize"
+
+	I_sametypesequence = "sametypesequence"
+	I_idxoffsetbits    = "idxoffsetbits"
 )
 
 // Info contains dictionary options

@@ -77,7 +77,7 @@ func ReadInfo(filename string) (info *Info, err error) {
 		}
 	}
 
-	if bits, ok := info.Options["idxoffsetbits"]; ok {
+	if bits, ok := info.Options[I_idxoffsetbits]; ok {
 		if bits == "64" {
 			info.Is64 = true
 		}
@@ -119,7 +119,7 @@ func (d *StarDictReader) Close() {
 }
 
 func (d *StarDictReader) decodeWithSametypesequence(data []byte) (items []*ArticleItem) {
-	seq := d.Options["sametypesequence"]
+	seq := d.Options[I_sametypesequence]
 
 	seqLen := len(seq)
 
@@ -187,7 +187,7 @@ func (d *StarDictReader) decodeWithoutSametypesequence(data []byte) (items []*Ar
 
 // DictName returns book name
 func (d *StarDictReader) DictName() string {
-	return d.Options["bookname"]
+	return d.Options[I_bookname]
 }
 
 // NewReader returns a new Dictionary
@@ -237,7 +237,7 @@ func NewReader(path string, name string) (*StarDictReader, error) {
 	d.synPath = synPath
 	d.dictPath = dictPath
 
-	if _, ok := info.Options["sametypesequence"]; ok {
+	if _, ok := info.Options[I_sametypesequence]; ok {
 		d.decodeData = d.decodeWithSametypesequence
 	} else {
 		d.decodeData = d.decodeWithoutSametypesequence
@@ -269,7 +269,6 @@ func (r *StarDictReader) Read() (func() ([]string, []*ArticleItem), error) {
 	}
 
 	data, err := os.ReadFile(r.idxPath)
-	// unable to read index
 	if err != nil {
 		return nil, err
 	}
