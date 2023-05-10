@@ -41,3 +41,21 @@ func TestSplitByBarUnescapeNTB(t *testing.T) {
 	is.Equal(f("a\\\\|b|c"), []string{"a\\", "b", "c"})
 	is.Equal(f("a\\\\1|b\\n|c\\t"), []string{"a\\1", "b\n", "c\t"})
 }
+
+func TestEscapeNTB(t *testing.T) {
+	is := is.New(t)
+	f := EscapeNTB
+	is.Equal(f("a", false), "a")
+	is.Equal(f("a\t", false), "a\\t")
+	is.Equal(f("a\n", false), "a\\n")
+	is.Equal(f("\ta", false), "\\ta")
+	is.Equal(f("\na", false), "\\na")
+	is.Equal(f("a\tb\n", false), "a\\tb\\n")
+	is.Equal(f("a\\b", false), "a\\\\b")
+	is.Equal(f("a\\\tb", false), "a\\\\\\tb")
+	is.Equal(f("a|b\tc", false), "a|b\\tc")
+	is.Equal(f("a\\|b\tc", false), "a\\\\|b\\tc")
+	is.Equal(f("|", true), "\\|")
+	is.Equal(f("a|b", true), "a\\|b")
+	is.Equal(f("a|b\tc", true), "a\\|b\\tc")
+}

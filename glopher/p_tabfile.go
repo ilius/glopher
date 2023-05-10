@@ -101,7 +101,8 @@ func (p *tabfilePlug) Write(glos LimitedGlossary, filename string, options ...Op
 		if entry.Error != nil {
 			return entry.Error
 		}
-		line := entry.Word + "\t" + entry.Defi
+		words := append([]string{entry.Word}, entry.AltWord...)
+		line := JoinByBarEscapeNTB(words) + "\t" + EscapeNTB(entry.Defi, false)
 		_, err := file.WriteString(line + "\n")
 		if err != nil {
 			return err

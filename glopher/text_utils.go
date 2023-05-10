@@ -1,5 +1,7 @@
 package glopher
 
+import "strings"
+
 // UnescapeNTB: unscapes Newline, Tab, Baskslash, and vertical Bar (if bar=True)
 func UnescapeNTB(st string, bar bool) string {
 	res := []rune{}
@@ -89,4 +91,23 @@ func SplitByBarUnescapeNTB(st string) []string {
 	}
 	parts = append(parts, UnescapeNTB(string(buf), false))
 	return parts
+}
+
+// EscapeNTB escapes Newline, Tab, Baskslash, and vertical Bar (if bar=True)
+func EscapeNTB(st string, bar bool) string {
+	st = strings.Replace(st, "\\", `\\`, -1)
+	st = strings.Replace(st, "\t", `\t`, -1)
+	st = strings.Replace(st, "\r", "", -1)
+	st = strings.Replace(st, "\n", `\n`, -1)
+	if bar {
+		st = strings.Replace(st, "|", `\|`, -1)
+	}
+	return st
+}
+
+func JoinByBarEscapeNTB(parts []string) string {
+	for i, part := range parts {
+		parts[i] = EscapeNTB(part, true)
+	}
+	return strings.Join(parts, "|")
 }
