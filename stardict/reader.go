@@ -126,10 +126,10 @@ func (d *StarDictReader) DictName() string {
 	return d.Options["bookname"]
 }
 
-// NewDictionary returns a new Dictionary
+// NewReader returns a new Dictionary
 // path - path to dictionary files
 // name - name of dictionary to parse
-func NewDictionary(path string, name string) (*StarDictReader, error) {
+func NewReader(path string, name string) (*StarDictReader, error) {
 	d := &StarDictReader{}
 
 	path = filepath.Clean(path)

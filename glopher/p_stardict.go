@@ -14,7 +14,7 @@ func init() {
 }
 
 type stardictPlug struct {
-	r *stardict.StarDictReader
+	reader *stardict.StarDictReader
 }
 
 func (p *stardictPlug) Name() string {
@@ -42,25 +42,25 @@ func (p *stardictPlug) WriteOptionsTypes() []*OptionType {
 func (p *stardictPlug) open(filename string) error {
 	dictDir := filepath.Dir(filename)
 	name := filepath.Base(filename)
-	r, err := stardict.NewDictionary(
+	r, err := stardict.NewReader(
 		dictDir,
 		name[:len(name)-len(".ifo")],
 	)
 	if err != nil {
 		return err
 	}
-	p.r = r
+	p.reader = r
 	return nil
 }
 
 func (p *stardictPlug) Count(filename string) (int, error) {
-	if p.r == nil {
+	if p.reader == nil {
 		err := p.open(filename)
 		if err != nil {
 			return 0, err
 		}
 	}
-	return p.r.EntryCount()
+	return p.reader.EntryCount()
 }
 
 func (p *stardictPlug) Read(filename string, options ...Option) (func() *Entry, error) {
@@ -69,17 +69,17 @@ func (p *stardictPlug) Read(filename string, options ...Option) (func() *Entry, 
 		return nil, err
 	}
 	infoList := [][2]string{}
-	for key, value := range p.r.Info.Options {
+	for key, value := range p.reader.Info.Options {
 		if value == "" {
 			continue
 		}
 		switch key {
-		case "bookname":
+		case stardict.I_bookname:
 			key = "name"
 		}
 		infoList = append(infoList, [2]string{key, value})
 	}
-	next, err := p.r.Read()
+	next, err := p.reader.Read()
 	if err != nil {
 		return nil, err
 	}
