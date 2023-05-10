@@ -2,6 +2,7 @@ package glopher
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -161,5 +162,5 @@ func (p *dictfilePlug) Write(glos LimitedGlossary, filename string, options ...O
 	// 		return err
 	// 	}
 	// }
-	return nil
+	return fmt.Errorf("writing dictfile is not implemented")
 }
