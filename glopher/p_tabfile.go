@@ -71,7 +71,7 @@ func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, e
 				Error: fmt.Errorf("tabfile: bad line: %v", line),
 			}
 		}
-		word := parts[0]
+		wordsStr := parts[0]
 		defi := ""
 		if len(parts) == 1 {
 		} else if len(parts) == 2 {
@@ -79,7 +79,7 @@ func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, e
 		} else {
 			defi = strings.Join(parts[1:], "\t")
 		}
-		words := SplitByBarUnescapeNTB(word)
+		words := SplitByBarUnescapeNTB(wordsStr)
 		defi = UnescapeNTB(defi, false)
 		return &Entry{
 			Word:    words[0],
@@ -96,6 +96,13 @@ func (p *tabfilePlug) Write(glos LimitedGlossary, filename string, options ...Op
 	}
 	if err != nil {
 		return err
+	}
+	for _, pair := range glos.Info().Items() {
+		line := EscapeNTB("##"+pair[0], false) + "\t" + EscapeNTB(pair[1], false)
+		_, err := file.WriteString(line + "\n")
+		if err != nil {
+			return err
+		}
 	}
 	for entry := range glos.Iter() {
 		if entry.Error != nil {
