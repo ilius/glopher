@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/cheggaaa/pb v1.0.29
+	github.com/ilius/go-dict-commons v0.3.0
 	github.com/ilius/is/v2 v2.3.2
 )
 
