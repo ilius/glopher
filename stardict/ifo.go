@@ -1,10 +1,7 @@
 package stardict
 
 import (
-	"bufio"
 	"errors"
-	"io"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -60,82 +57,4 @@ func decodeOption(str string) (key string, value string, err error) {
 	}
 
 	return a[0], a[1], nil
-}
-
-// ReadInfo reads ifo file and collects dictionary options
-func ReadInfo(filename string) (info *Info, err error) {
-	reader, err := os.Open(filename)
-	if err != nil {
-		return
-	}
-
-	defer reader.Close()
-
-	r := bufio.NewReader(reader)
-
-	_, err = r.ReadString('\n')
-
-	if err != nil {
-		return
-	}
-
-	version, err := r.ReadString('\n')
-	if err != nil {
-		return
-	}
-
-	key, value, err := decodeOption(version[:len(version)-1])
-	if err != nil {
-		return
-	}
-
-	if key != "version" {
-		err = errors.New("version missing (should be on second line)")
-		return
-	}
-
-	if value != "2.4.2" && value != "3.0.0" {
-		err = errors.New("stardict version should be either 2.4.2 or 3.0.0")
-		return
-	}
-
-	info = &Info{}
-
-	info.Version = value
-
-	info.Options = make(map[string]string)
-
-	for {
-		option, err := r.ReadString('\n')
-
-		if err != nil && err != io.EOF {
-			return info, err
-		}
-
-		if err == io.EOF && len(option) == 0 {
-			break
-		}
-
-		key, value, err = decodeOption(option[:len(option)-1])
-
-		if err != nil {
-			return info, err
-		}
-
-		info.Options[key] = value
-
-		if err == io.EOF {
-			break
-		}
-	}
-
-	if bits, ok := info.Options["idxoffsetbits"]; ok {
-		if bits == "64" {
-			info.Is64 = true
-		}
-	} else {
-		info.Is64 = false
-	}
-
-	return
 }

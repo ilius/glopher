@@ -1,11 +1,92 @@
 package stardict
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/binary"
+	"errors"
+	"io"
 	"os"
 	"path/filepath"
 )
+
+// ReadInfo reads ifo file and collects dictionary options
+func ReadInfo(filename string) (info *Info, err error) {
+	reader, err := os.Open(filename)
+	if err != nil {
+		return
+	}
+
+	defer reader.Close()
+
+	r := bufio.NewReader(reader)
+
+	_, err = r.ReadString('\n')
+
+	if err != nil {
+		return
+	}
+
+	version, err := r.ReadString('\n')
+	if err != nil {
+		return
+	}
+
+	key, value, err := decodeOption(version[:len(version)-1])
+	if err != nil {
+		return
+	}
+
+	if key != "version" {
+		err = errors.New("version missing (should be on second line)")
+		return
+	}
+
+	if value != "2.4.2" && value != "3.0.0" {
+		err = errors.New("stardict version should be either 2.4.2 or 3.0.0")
+		return
+	}
+
+	info = &Info{}
+
+	info.Version = value
+
+	info.Options = make(map[string]string)
+
+	for {
+		option, err := r.ReadString('\n')
+
+		if err != nil && err != io.EOF {
+			return info, err
+		}
+
+		if err == io.EOF && len(option) == 0 {
+			break
+		}
+
+		key, value, err = decodeOption(option[:len(option)-1])
+
+		if err != nil {
+			return info, err
+		}
+
+		info.Options[key] = value
+
+		if err == io.EOF {
+			break
+		}
+	}
+
+	if bits, ok := info.Options["idxoffsetbits"]; ok {
+		if bits == "64" {
+			info.Is64 = true
+		}
+	} else {
+		info.Is64 = false
+	}
+
+	return
+}
 
 // dictionaryImp stardict dictionary
 type StarDictReader struct {
@@ -173,26 +254,29 @@ const (
 	sizeState
 )
 
-func (d *StarDictReader) Read() (func() ([]string, []*ArticleItem), error) {
-	info := d.Info
-	dict, err := ReadDict(d.dictPath, info)
+func (r *StarDictReader) readSyn() (map[int][]string, error) {
+	if r.synPath == "" {
+		return nil, nil
+	}
+	return readSyn(r.synPath)
+}
+
+func (r *StarDictReader) Read() (func() ([]string, []*ArticleItem), error) {
+	info := r.Info
+	dict, err := ReadDict(r.dictPath, info)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := os.ReadFile(d.idxPath)
+	data, err := os.ReadFile(r.idxPath)
 	// unable to read index
 	if err != nil {
 		return nil, err
 	}
 
-	altsMap := map[int][]string{}
-	if d.synPath != "" {
-		var err error
-		altsMap, err = readSyn(d.synPath)
-		if err != nil {
-			return nil, err
-		}
+	synMap, err := r.readSyn()
+	if err != nil {
+		return nil, err
 	}
 
 	var buf [255]byte // temporary buffer
@@ -208,7 +292,7 @@ func (d *StarDictReader) Read() (func() ([]string, []*ArticleItem), error) {
 	entryIndex := 0
 
 	return func() ([]string, []*ArticleItem) {
-		alts := altsMap[int(entryIndex)]
+		synTerms := synMap[entryIndex]
 		entryIndex++
 		for {
 			if pos >= len(data) {
@@ -246,8 +330,8 @@ func (d *StarDictReader) Read() (func() ([]string, []*ArticleItem), error) {
 			// finished with one record
 			bufPos = 0
 			state = termState
-			terms := append([]string{term}, alts...)
-			return terms, d.decodeData(dict.GetSequence(dataOffset, num))
+			terms := append([]string{term}, synTerms...)
+			return terms, r.decodeData(dict.GetSequence(dataOffset, num))
 		}
 	}, nil
 }
