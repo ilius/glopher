@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"github.com/ilius/glopher/common"
 )
 
 func init() {
@@ -92,7 +94,7 @@ func (p *tabfilePlug) Read(filename string, options ...Option) (func() *Entry, e
 func (p *tabfilePlug) Write(glos LimitedGlossary, filename string, options ...Option) error {
 	file, err := os.Create(filename)
 	if file != nil {
-		defer file.Close()
+		defer common.Close(file)
 	}
 	if err != nil {
 		return err

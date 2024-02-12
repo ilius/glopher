@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ilius/glopher/common"
 	"github.com/ilius/glopher/stardict/dictzip"
 )
 
@@ -52,7 +53,7 @@ func (d *Dict) Close() {
 		return
 	}
 	log.Println("Closing", d.filename)
-	d.file.Close()
+	common.Close(d.file)
 	d.file = nil
 }
 

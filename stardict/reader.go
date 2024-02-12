@@ -8,6 +8,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/ilius/glopher/common"
 )
 
 // ReadInfo reads ifo file and collects dictionary options
@@ -17,7 +19,7 @@ func ReadInfo(filename string) (info *Info, err error) {
 		return
 	}
 
-	defer reader.Close()
+	defer common.Close(reader)
 
 	r := bufio.NewReader(reader)
 
