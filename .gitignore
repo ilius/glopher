@@ -1,3 +1,4 @@
+cmd/glopher/glopher
 *.bin
 *.exe
 pkg
