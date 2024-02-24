@@ -5,7 +5,7 @@ import (
 )
 
 type Option struct {
-	Value interface{}
+	Value any
 	Name  string
 }
 
