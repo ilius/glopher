@@ -35,7 +35,7 @@ func NewGlossary() Glossary {
 	pluginByExt := map[string]PluginType1{}
 	for _, name := range PluginNames() {
 		plug := PluginByName(name)
-		for _, ext := range plug.Extentions() {
+		for _, ext := range plug.Extensions() {
 			pluginByExt[ext] = plug
 		}
 	}

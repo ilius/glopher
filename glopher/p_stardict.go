@@ -25,7 +25,7 @@ func (p *stardictPlug) Description() string {
 	return "StarDict (.ifo)"
 }
 
-func (p *stardictPlug) Extentions() []string {
+func (p *stardictPlug) Extensions() []string {
 	return []string{
 		".ifo",
 	}

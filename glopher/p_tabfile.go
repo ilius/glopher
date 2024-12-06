@@ -24,7 +24,7 @@ func (p *tabfilePlug) Description() string {
 	return "Tabfile (.txt)"
 }
 
-func (p *tabfilePlug) Extentions() []string {
+func (p *tabfilePlug) Extensions() []string {
 	return []string{
 		".txt",
 		".tab",

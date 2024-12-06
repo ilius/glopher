@@ -22,7 +22,7 @@ func (p *dictfilePlug) Description() string {
 	return "dictfile (.df)"
 }
 
-func (p *dictfilePlug) Extentions() []string {
+func (p *dictfilePlug) Extensions() []string {
 	return []string{
 		".df",
 	}

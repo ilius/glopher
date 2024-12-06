@@ -9,7 +9,7 @@ import (
 type PluginBase interface {
 	Name() string
 	Description() string
-	Extentions() []string
+	Extensions() []string
 	ReadOptionTypes() []*OptionType
 	WriteOptionsTypes() []*OptionType
 	Count(filename string) (int, error)
